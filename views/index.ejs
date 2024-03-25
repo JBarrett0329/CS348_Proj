@@ -9,11 +9,15 @@
 
     <% if (runs.length > 0) { %>
       <% runs.forEach(run => { %>
-
-        <h3 class="name"><%= run.name %></h3>
-        <p class="distance"><%= run.distance %></p>
-        <p class="time"><%= run.duration %></p>
-        <p class="date"><%= run.date %></p>
+        <a class="single" href="/runs/<%= run._id %>" style="margin-bottom: 20px;">
+          <h3 class="name"><%= run.name %></h3>
+          <p class="date">Date: <%= run.date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit'  
+          }) %></p>
+          <p class="distance">Distance: <%= run.distance %></p>
+        </a>
       <% }) %>
     <% } else { %>
       <p>There are no runs to display...</p>

@@ -12,20 +12,23 @@ const runSchema = new Schema({
   },
   duration: {
     type: String,
-    validate: {
-        validator: function (v) {
-          if (!v) {
-            return true;
-          }
-          return /([01]?[0-9]|2[0-3]):[0-5][0-9]/.test(v);
-        },
-        message: (props) => `${props.value} is not valid time!`,
-      },
+    // validate: {
+    //     validator: function (v) {
+    //       if (!v) {
+    //         return true;
+    //       }
+    //       return /([01]?[0-9]|2[0-3]):[0-5][0-9]/.test(v);
+    //     },
+    //     message: (props) => `${props.value} is not valid time!`,
+    //   },
     required: true
   },
   date: {
     type: Date,
     required: true
+  },
+  notes: {
+    type: String
   }
 
 });

@@ -2,6 +2,7 @@ const express = require('express');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
 const Run = require('./models/run');
+const { request } = require('http');
 
 
 // express app
@@ -23,6 +24,7 @@ app.set('view engine', 'ejs');
 
 // middleware & static files
 app.use(express.static('public'));
+app.use(express.urlencoded({extended: true}));
 
 app.use(morgan('dev'));
 app.use((req, res, next) => {
@@ -31,24 +33,24 @@ app.use((req, res, next) => {
 });
 
 
-// mongoose & mongo tests
-app.get('/new-run', (req, res) => {
-  const run = new Run({
-        name: "Morning Run",
-        distance: 5, // in kilometers
-        time: "07:30", // in HH:MM format
-        date: new Date("2024-03-24") // Date object representing March 24, 2024
-  })
+// mongoose & mongo tests 
+// app.get('/new-run', (req, res) => {
+//   const run = new Run({
+//         name: "Morning Run",
+//         distance: 5, // in kilometers
+//         time: "07:30", // in HH:MM format
+//         date: new Date("2024-03-24") // Date object representing March 24, 2024
+//   })
 
 
-  run.save()
-    .then(result => {
-      res.send(result);
-    })
-    .catch(err => {
-      console.log(err);
-    });
-});
+//   run.save()
+//     .then(result => {
+//       res.send(result);
+//     })
+//     .catch(err => {
+//       console.log(err);
+//     });
+// });
 
 
 app.get('/all-runs', (req, res) => {
@@ -88,11 +90,6 @@ app.get('/runs/create', (req, res) => {
   res.render('create', { title: 'Log a new run' });
 });
 
-app.post('/runs', (req, res) => {
-
-})
-
-
 app.get('/runs', (req, res) => {
   Run.find().sort({ createdAt: -1 })
     .then(result => {
@@ -102,6 +99,43 @@ app.get('/runs', (req, res) => {
       console.log(err);
     });
 });
+
+app.post('/runs', (req, res) => {
+  console.log(res.body);
+  const run = new Run(req.body);
+  
+  run.save()
+    .then(result => {
+        res.redirect('/runs');
+    })
+    .catch(err => {
+      console.log(err);
+    });
+});
+
+app.get('/runs/:id', (req, res) => {
+  const id = req.params.id;
+  Run.findById(id)
+  .then(result => {
+    res.render('details', { run: result, title: 'Run Details' })
+  })
+  .catch(err => {
+    console.log(err);
+  })
+})
+
+app.delete('/runs/:id', (req, res) => {
+  const id = req.params.id;
+
+  Run.findByIdAndDelete(id)
+    .then(result => {
+      res.json({ redirect: '/runs' });
+    })
+    .catch(err => {
+      console.log(err);
+    })
+})
+
 
 
 // 404 page

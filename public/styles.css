@@ -31,6 +31,9 @@
       list-style-type: none;
       margin-left: 20px;
     }
+    nav li:hover a{
+      color: crimson;
+    }
     nav h1{
       font-size: 3em;
     }
@@ -39,7 +42,7 @@
       font-weight: 300;
     }
     h2{
-      margin-bottom: 40px;
+      margin-bottom: 20px;
     }
     h3{
       text-transform: capitalize;
@@ -50,15 +53,48 @@
     }
 
     /* index styles */
+    .runs a{
+      display: block;
+      margin: 40px 0;
+      padding-left: 30px;
+      border-left: 6px solid crimson;
+    }
+    .runs a:hover h3{
+      color: crimson;
+    }
 
     /* details styles */
+    .details{
+      position: relative;
+    }
+
+    .delete {
+      display: flex; /* Use flexbox */
+      align-items: center; /* Center items vertically */
+      background-color: #ff5252; /* Crimson color */
+      color: #fff; /* White text color */
+      position: absolute; 
+      top: 0;
+      right: 0px;
+      border-radius: 4px;
+      padding: 8px;
+    }
+    
+    .delete svg {
+      margin-left: 5px; 
+    }
+
+    .delete:hover {
+      background-color: #ff7675; /* Darker shade of crimson on hover */
+    }
 
     /* create styles */
     .create-run form{
       max-width: 400px;
       margin: 0 auto;
     }
-    .create-run input{
+    .create-run input,
+    .create-run textarea{
       display: block;
       width: 100%;
       margin: 10px 0;
@@ -71,12 +107,22 @@
     textarea{
       height: 120px;
     }
-    .create-run button{
-      margin-top: 20px;
-      background: crimson;
-      color: white;
-      padding: 6px;
-      border: 0;
-      font-size: 1.2em;
+    
+    
+    .create-run button {
+      background-color: #ff5252; /* Crimson color */
+      color: #fff; /* White text color */
+      padding: 12px 24px; /* Larger padding for better touch target */
+      border: none; /* No border */
+      border-radius: 4px; /* Rounded corners */
+      font-size: 1.2em; /* Larger font size */
+      font-weight: bold; /* Bold font weight */
+      text-transform: uppercase; /* Uppercase text */
+      letter-spacing: 1px; /* Increased letter spacing for readability */
       cursor: pointer;
+      transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+    }
+    
+    .create-run button:hover {
+      background-color: #ff7675; /* Darker shade of crimson on hover */
     }
