@@ -1,0 +1,25 @@
+<html lang="en">
+<%- include("./partials/head.ejs") %>
+
+<body>
+  <%- include("./partials/nav.ejs") %>
+
+  <div class="runs content">
+    <h2>All Runs</h2>
+
+    <% if (runs.length > 0) { %>
+      <% runs.forEach(run => { %>
+
+        <h3 class="name"><%= run.name %></h3>
+        <p class="distance"><%= run.distance %></p>
+        <p class="time"><%= run.duration %></p>
+        <p class="date"><%= run.date %></p>
+      <% }) %>
+    <% } else { %>
+      <p>There are no runs to display...</p>
+    <% } %>
+    
+  </div>
+
+</body>
+</html>

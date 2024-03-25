@@ -1,0 +1,23 @@
+<html lang="en">
+<%- include("./partials/head.ejs") %>
+
+<body>
+  <%- include("./partials/nav.ejs") %>
+
+  <div class="create-run content">
+    <form action="/runs" method = "POST">
+      <label for="name">Run Name:</label>
+      <input type="text" id="name" name="name" required>
+      <label for="dist">Distance:</label>
+      <input type="number" id="dist" name="dist" required>
+      <label for="duration">Duration:</label>
+      <input type="number" id="duration" name="duration" required>
+      <label for="date">Date:</label>
+      <input type="date" id="date" name="date" required>
+      <button>Submit</button>
+    </form>
+  </div>
+
+
+</body>
+</html>
