@@ -1,0 +1,99 @@
+<!-- <script>
+  const confirm = async () => {
+
+    if (password !== confPassword) {
+      return;
+    } else if (email.indexOf('@') == -1) {
+      return;
+    } else {
+      const atIndex = email.indexOf("@");
+      const username = email.slice(0, atIndex);
+      return;
+    }
+  };
+</script>
+
+<html lang="en">
+    <%- include("./partials/head.ejs") %>
+<body>
+
+
+
+<div class="sign-in content">
+    <form action="/new-user" method="POST">
+        <div class="header" style="text-align: center;">
+            <h3>New User</h3>
+            <h1> Stride Tracker</h1>
+        </div>
+
+    <label for="email">Email:</label>
+    <input bind:value={email} type="text" placeholder="Enter email" id="email" name="email" required>
+
+    <label for="password">Password:</label>
+    <input bind:value={password} type="password" placeholder="Enter password" id="password" name="password" required>
+    <input bind:value={confPassword} type="password" placeholder="Confirm password" id="confPassword" name="confPassword" required>
+
+    <div style="text-align: center; margin-top: 20px;">
+        <button type="button" onclick="window.location.href='/sign-in';">Back to Sign-In</button>
+        <button on:click={confirm} type="submit">Create User</button>
+    </div>
+    </form>
+</div>
+
+
+</body>
+</html> -->
+
+
+<script>
+  function validateForm() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const confPassword = document.getElementById('confPassword').value;
+  
+      // Regular expression for validating email format
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  
+      // Check if email is in the correct format
+      if (!emailPattern.test(email)) {
+          alert('Please enter a valid email address.');
+          return false;
+      }
+  
+      // Check if passwords match
+      if (password !== confPassword) {
+          alert('Passwords do not match.');
+          return false;
+      }
+  
+      // Form is valid, allow submission
+      return true;
+  }
+  </script>
+  
+<html lang="en">
+    <%- include("./partials/head.ejs") %>
+<body>
+<div class="sign-in content">
+    <form id="newUserForm" action="/new-user" method="POST" onsubmit="return validateForm()">
+        <div class="header" style="text-align: center;">
+            <h3>New User</h3>
+            <h1> Stride Tracker</h1>
+        </div>
+
+    <label for="email">Email:</label>
+    <input type="email" placeholder="Enter email" id="email" name="email" required>
+
+    <label for="password">Password:</label>
+    <input type="password" placeholder="Enter password" id="password" name="password" required>
+    <input type="password" placeholder="Confirm password" id="confPassword" name="confPassword" required>
+
+    <div style="text-align: center; margin-top: 20px;">
+        <button type="button" onclick="window.location.href='/sign-in';">Back to Sign-In</button>
+        <button type="submit">Create User</button>
+    </div>
+    </form>
+</div>
+
+</body>
+</html>

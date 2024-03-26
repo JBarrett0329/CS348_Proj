@@ -2,6 +2,7 @@ const express = require('express');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
 const Run = require('./models/run');
+const User = require('./models/user');
 const { request } = require('http');
 
 
@@ -76,7 +77,7 @@ app.get('/single-run', (req, res) => {
 
 
 app.get('/', (req, res) => {
-  res.redirect('/runs');
+  res.redirect('/sign-in');
 });
 
 
@@ -85,7 +86,61 @@ app.get('/about', (req, res) => {
 });
 
 
-// run routes
+//user routes
+app.get('/new-user', (req, res) => {
+  res.render('new-user', { title: 'Create new user'});
+})
+
+app.get('/sign-in', (req, res) => {
+  res.render('sign-in', { title: 'Sign in to user'});
+})
+
+app.post('/new-user', (req, res) => {
+  console.log(req.body);
+  const atIndex = req.body.email.indexOf("@");
+  const username = req.body.email.slice(0, atIndex);
+
+  const user = new User({
+    username: username,
+    email: req.body.email,
+    password: req.body.password
+  });
+
+  user.save()
+    .then(result => {
+        res.redirect('/runs');
+    })
+    .catch(err => {
+      console.log(err);
+    });
+});
+
+app.post('/sign-in', async (req, res) => {
+  const { username_or_email, password } = req.body;
+
+  try {
+      // Find user by username or email
+      const user = await User.findOne({
+          $or: [{ username: username_or_email }, { email: username_or_email }]
+      });
+
+      // If user not found, return error
+      if (!user) {
+          return res.status(401).json({ message: 'Invalid username or email' });
+      }
+
+      // Verify password
+      if (password != user.password) {
+          return res.status(401).json({ message: 'Incorrect password' });
+      }
+
+      res.redirect('/runs');
+  } catch (err) {
+      console.error(err);
+  }
+});
+
+//run routes
 app.get('/runs/create', (req, res) => {
   res.render('create', { title: 'Log a new run' });
 });
@@ -101,7 +156,6 @@ app.get('/runs', (req, res) => {
 });
 
 app.post('/runs', (req, res) => {
-  console.log(res.body);
   const run = new Run(req.body);
   
   run.save()
@@ -111,6 +165,27 @@ app.post('/runs', (req, res) => {
     .catch(err => {
       console.log(err);
     });
+});
+
+app.post("/runs/:id", async (req, res) => {
+  const { id } = req.params;
+  const { name, date, duration, distance, notes } = req.body;
+  console.log(id);
+  try {
+    // Find the document by ID and update it
+    const updatedDoc = await Run.findByIdAndUpdate(id, { name, date, duration, distance, notes } , { new: true });
+
+    if (!updatedDoc) {
+      return res.status(404).json({ message: 'Document not found' });
+    }
+
+    Run.findById(id)
+    .then(result => {
+      res.render('details', { run: result, title: 'Run Details' })
+    })
+  } catch (err) {
+    console.log(err);
+  }
 });
 
 app.get('/runs/:id', (req, res) => {

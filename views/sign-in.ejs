@@ -1,0 +1,32 @@
+<html lang="en">
+    <%- include("./partials/head.ejs") %>
+<body>
+
+
+
+<div class="sign-in content">
+    <form action="/sign-in" method="POST">
+        <div class="header" style="text-align: center;">
+            <h3>Sign In to</h3>
+            <h1> Stride Tracker</h1>
+        </div>
+
+    <label for="username_or_email">Username or Email:</label>
+    <input type="text" placeholder="Enter username or email" id="username_or_email" name="username_or_email" required>
+
+    <label for="password">Password:</label>
+    <input type="password" placeholder="Enter password" id="password" name="password" required>
+
+    <div style="text-align: center; margin-top: 20px;">
+        <button type="button" onclick="window.location.href='/new-user';">New User</button>
+        <button type="submit">Sign In</button>
+    </div>
+    </form>
+</div>
+
+
+</body>
+</html>
+
+
+
