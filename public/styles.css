@@ -54,8 +54,8 @@
 
     /* index styles */
     .runs a{
-      display: block;
-      margin: 40px 0;
+      display: inline-block;
+      margin: 20px 20px;
       padding-left: 30px;
       border-left: 6px solid crimson;
     }
@@ -77,7 +77,7 @@
       top: 0;
       right: 0px;
       border-radius: 4px;
-      border-color: #ff5252;
+      border: none;
       padding: 8px;
       width: 80px;
       font-size: 1em; 
@@ -138,13 +138,12 @@
     .create-run button {
       background-color: #ff5252; /* Crimson color */
       color: #fff; /* White text color */
-      padding: 12px 24px; /* Larger padding for better touch target */
+      padding: 10px 20px; /* Larger padding for better touch target */
       border: none; /* No border */
       border-radius: 4px; /* Rounded corners */
       font-size: 1.2em; /* Larger font size */
-      font-weight: bold; /* Bold font weight */
-      text-transform: uppercase; /* Uppercase text */
       letter-spacing: 1px; /* Increased letter spacing for readability */
+      font-family: 'Noto Serif', serif;
       cursor: pointer;
       transition: background-color 0.3s ease; /* Smooth transition for hover effect */
     }
@@ -157,16 +156,18 @@
     .sign-in form{
       max-width: 400px;
       margin: 0 auto;
-      margin-top: 100px;
-      border: 2px solid #f5b7b1;
+      margin-top: 12%;
+      border: 3px solid #f5b7b1;
       border-radius: 8px;
-      padding: 20px;
+      padding: 30px;
     }
     .sign-in input{
       display: block;
       width: 100%;
       margin: 10px 0;
       padding: 8px;
+      border: 2px solid #636363;
+      border-radius: 6px;
     }
     .sign-in label{
       display: block;
@@ -188,3 +189,108 @@
     .sign-in button:hover {
       background-color: #ff7675; /* Darker shade of crimson on hover */
     }
+
+    /* filter styles */
+
+    .filter-container{
+        position: relative;
+        display: block;
+        text-align: right;
+    }
+
+    .filter-input-container{
+      position: absolute;
+      top: auto;
+      display: inline-block;
+      max-width: 160px;
+      border-left: none;
+      background-color: #f9f9f9;
+      border-radius: 0px 0px 4px 4px;
+      max-width: 160px;
+      min-height: fit-content;
+      text-align: right;
+      font-size: .75em; 
+      letter-spacing: 1px; /* Increased letter spacing for readability */
+      font-family: 'Noto Serif', serif;
+    }
+
+    .filter-input-container button{
+      background-color: #ff5252; /* Crimson color */
+      color: #fff;
+      position: relative;
+      border-radius: 4px;
+      border: none; 
+      margin-bottom: 4px;
+      font-size: .75em; 
+      letter-spacing: 1px; /* Increased letter spacing for readability */
+      font-family: 'Noto Serif', serif;
+    }
+
+    .filter-input-container button:hover, .filter-button:hover{
+      background-color: crimson;
+    }
+
+    .filter-input-container label{
+      /* color: black;
+      font-size: .65em;
+      font-family: 'Noto Serif', serif; */
+      max-width: 160px;
+    }
+
+    .filter-input-container input{
+      color: black;
+      border: 1px solid #777;
+      border-radius: 2px;
+      text-align: right;
+      font-size: .75em;
+      font-family: 'Noto Serif', serif;
+      min-width: 130px;
+      margin-top: 2px;
+      margin-bottom: 4px;
+    }
+
+    .filter-button {
+        background-color: #ff5252; /* Crimson color */
+        color: #fff; /* White text color */
+        border-radius: 4px;
+        border: none;
+        padding: 8px;
+        font-size: 1em; 
+        letter-spacing: 1px; /* Increased letter spacing for readability */
+        font-family: 'Noto Serif', serif;
+        cursor: pointer;
+    }
+
+    .filter-dropdown {
+        position: absolute;
+        top: 100%;
+        right: 0%;
+        margin-top: 10px;
+        background-color: #f9f9f9;
+        min-width: 160px;
+        border-radius: 4px;
+        display: none;
+        text-align: right;
+        z-index: 1;
+    }
+
+    .filter-dropdown a {
+        color: black;
+        border-right: 6px solid crimson;
+        border-left: none;
+        border-radius: 2px;
+        padding: 12px 16px;
+        margin: 4px;
+        text-decoration: none;
+        display: block;
+    }
+
+    .filter-dropdown a:hover {
+        background-color: #f1f1f1;
+        color: crimson;
+    }
+
+    .filter-dropdown a.hidden {
+      display: none;
+  }
+

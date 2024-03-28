@@ -54,15 +54,15 @@ app.use((req, res, next) => {
 // });
 
 
-app.get('/all-runs', (req, res) => {
-  Run.find()
-    .then(result => {
-      res.send(result);
-    })
-    .catch(err => {
-      console.log(err);
-    });
-});
+// app.get('/all-runs', (req, res) => {
+//   Run.find()
+//     .then(result => {
+//       res.send(result);
+//     })
+//     .catch(err => {
+//       console.log(err);
+//     });
+// });
 
 
 app.get('/single-run', (req, res) => {

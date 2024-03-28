@@ -64,7 +64,8 @@
       <div class="content">
           <p class="date" style="margin-bottom: 20px;">Date: <%= run.date.toLocaleDateString('en-US', {timeZone: "UTC"}) %></p>
             <p class="time" style="margin-bottom: 20px;">Duration: <%= run.duration %></p>
-            <p class="distance" style="margin-bottom: 20px;">Distance: <%= run.distance %></p>
+            <p class="distance" style="margin-bottom: 20px;">Distance: <%= run.distance %> miles</p>
+            <p class="distance" style="margin-bottom: 20px;">Pace: <%= run.distance/run.duration %> min/mi</p>
             <p class="distance" style="margin-bottom: 20px;">Notes: <%= run.notes %></p>
       </div>
       <a class="delete" style="position: absolute" data-doc="<%= run._id %>">
@@ -120,6 +121,8 @@
   </div>
 
   <script>
+    
+
     // Toggle edit form visibility
     document.getElementById('editButton').addEventListener('click', function() {
       const editForm = document.querySelector('.edit-content');

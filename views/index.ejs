@@ -5,7 +5,110 @@
   <%- include("./partials/nav.ejs") %>
 
   <div class="runs content">
-    <h2>All Runs</h2>
+    <div style="display: flex; justify-content: space-between;">
+      <h2>All Runs</h2>
+      <div class="filter-container">
+        <button class="filter-button" onclick="toggleDropdown()">Filter</button>
+        <div class="filter-dropdown" id="myDropdown">
+            <a href="#" onclick="showInput('distance')">Distance</a>
+            <a href="#" onclick="showInput('date')">Date</a>
+            <a href="#" onclick="showInput('duration')">Duration</a>
+            <a href="#" onclick="showInput('pace')">Pace</a>
+            <div class= "filter-input-container" id="filterInputContainer" style="display: none;">
+              <div style="margin: 0 4px 4px 4px; border-right: 6px solid crimson; border-radius: 2px;">
+                <div style="margin: 8px;">
+                  <label for="filterInput" id ="filterInputLabel"></label>
+                  <input type="text" id="filterInput" placeholder="Enter filter value">
+                  <button onclick="applyFilter()">Apply</button>
+                </div>
+              </div>
+            </div>
+        </div>
+    </div>
+  </div>
+  
+  <script>
+  function toggleDropdown() {
+      var dropdown = document.getElementById("myDropdown");
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+      dropdown.style.borderRadius = '4px';
+      var dropdownOptions = document.querySelectorAll('.filter-dropdown a');
+      dropdownOptions.forEach(function(optionElement) {
+          optionElement.classList.remove('hidden'); 
+      });
+      var inputContainer = document.getElementById("filterInputContainer");
+      inputContainer.style.display = 'none';
+
+  }
+  
+  function showInput(option) {
+    var inputContainer = document.getElementById("filterInputContainer");
+    inputContainer.style.display = 'block';
+
+    var inputLabel = document.getElementById("filterInputLabel");
+    var input = document.getElementById("filterInput");
+
+    if (option === "date") {
+        inputLabel.innerHTML = "Enter date";
+        input.type = "date";
+    } else {
+        inputLabel.innerHTML = "Enter minimum " + option + ".";
+        input.dataset.option = option;
+        input.placeholder = "Enter " + option + " (" + getFormat(option) + ")";
+        input.type = "text"; // Ensure input type is text for non-date options
+    }
+
+    var dropdownOptions = document.querySelectorAll('.filter-dropdown a');
+    dropdownOptions.forEach(function(optionElement) {
+        optionElement.classList.add('hidden'); // Hide all options
+    });
+
+    var clickedOption = document.querySelector('.filter-dropdown a[href="#"][onclick="showInput(\'' + option + '\')"]');
+    clickedOption.classList.remove('hidden'); // Show the selected option
+    document.querySelector('.filter-dropdown').style.borderRadius = '4px 4px 0px 0px';
+}
+
+  
+  function applyFilter() {
+      var input = document.getElementById("filterInput");
+      var value = input.value;
+      var option = input.dataset.option;
+      if (value.trim() !== "") {
+          console.log("Filter by " + option + " with value: " + value);
+          // You can perform filtering based on the selected option and value here
+      }
+  }
+  
+  function getFormat(option) {
+      switch(option) {
+          case 'distance':
+              return "ex. 5 miles";
+          case 'date':
+              return "ex. YYYY-MM-DD";
+          case 'duration':
+              return "ex., HH:MM:SS";
+          case 'pace':
+              return "ex., mm:ss per mile";
+          default:
+              return "";
+      }
+  }
+  
+  // Close the dropdown menu if the user clicks outside of it
+  document.body.addEventListener('click', function(event) {
+      var dropdown = document.getElementById("myDropdown");
+      var inputContainer = document.getElementById("filterInputContainer");
+      if (!dropdown.contains(event.target) && event.target !== document.querySelector('.filter-button')) {
+          var dropdownOptions = document.querySelectorAll('.filter-dropdown a');
+          dropdownOptions.forEach(function(optionElement) {
+              optionElement.classList.remove('hidden'); // Unhide all options
+          });
+          dropdown.style.display = 'none';
+          inputContainer.style.display = 'none';
+      }
+      
+  });
+  </script>
 
     <% if (runs.length > 0) { %>
       <% runs.forEach(run => { %>
@@ -19,6 +122,7 @@
           <p class="distance">Distance: <%= run.distance %></p>
         </a>
       <% }) %>
+
     <% } else { %>
       <p>There are no runs to display...</p>
     <% } %>
