@@ -199,7 +199,7 @@
     }
 
     .filter-input-container{
-      position: absolute;
+      /* position: absolute; */
       top: auto;
       display: inline-block;
       max-width: 160px;
@@ -214,20 +214,21 @@
       font-family: 'Noto Serif', serif;
     }
 
-    .filter-input-container button{
-      background-color: #ff5252; /* Crimson color */
+    .filter-input-container button, .filter-container button{
+      background-color: crimson; /* Crimson color */
       color: #fff;
       position: relative;
       border-radius: 4px;
       border: none; 
       margin-bottom: 4px;
+      margin-right: 4px;
       font-size: .75em; 
       letter-spacing: 1px; /* Increased letter spacing for readability */
       font-family: 'Noto Serif', serif;
     }
 
-    .filter-input-container button:hover, .filter-button:hover{
-      background-color: crimson;
+    .filter-input-container button:hover, .filter-container button:hover, .filter-button:hover{
+      background-color: rgb(202, 16, 53);
     }
 
     .filter-input-container label{

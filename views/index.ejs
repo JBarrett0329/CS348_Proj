@@ -11,92 +11,94 @@
         <button class="filter-button" onclick="toggleDropdown()">Filter</button>
         <div class="filter-dropdown" id="myDropdown">
             <a href="#" onclick="showInput('distance')">Distance</a>
-            <a href="#" onclick="showInput('date')">Date</a>
-            <a href="#" onclick="showInput('duration')">Duration</a>
-            <a href="#" onclick="showInput('pace')">Pace</a>
-            <div class= "filter-input-container" id="filterInputContainer" style="display: none;">
-              <div style="margin: 0 4px 4px 4px; border-right: 6px solid crimson; border-radius: 2px;">
-                <div style="margin: 8px;">
-                  <label for="filterInput" id ="filterInputLabel"></label>
-                  <input type="text" id="filterInput" placeholder="Enter filter value">
-                  <button onclick="applyFilter()">Apply</button>
-                </div>
-              </div>
+            <div class="filter-input-container" id="distanceInputContainer" style="display: none; margin-right: 4px;">
+                <input type="text" id="distance" placeholder="Enter min. distance">
             </div>
+
+            <a href="#" onclick="showInput('date')">Date</a>
+            <div class="filter-input-container" id="dateInputContainer" style="display: none; margin-right: 4px;">
+                <input type="date" id="date">
+            </div>
+
+            <a href="#" onclick="showInput('duration')">Duration</a>
+            <div class="filter-input-container" id="durationInputContainer" style="display: none; margin-right: 4px;">
+                <input type="text" id="duration" placeholder="Enter min. duration">
+            </div>
+
+            <a href="#" onclick="showInput('pace')">Pace</a>
+            <div class="filter-input-container" id="paceInputContainer" style="display: none; margin-right: 4px;">
+                <input type="text" id="pace" placeholder="Enter max. pace">
+            </div>
+
+            <button onclick="applyFilter()">Apply</button>
         </div>
+      </div>
     </div>
-  </div>
+
   
   <script>
   function toggleDropdown() {
       var dropdown = document.getElementById("myDropdown");
       dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
       dropdown.style.borderRadius = '4px';
-      var dropdownOptions = document.querySelectorAll('.filter-dropdown a');
-      dropdownOptions.forEach(function(optionElement) {
-          optionElement.classList.remove('hidden'); 
-      });
-      var inputContainer = document.getElementById("filterInputContainer");
-      inputContainer.style.display = 'none';
 
+      // clear inputs
+      var inputs = document.querySelectorAll('.filter-dropdown input');
+      inputs.forEach(input => {
+          input.value = ''; 
+      });
   }
+
   
   function showInput(option) {
-    var inputContainer = document.getElementById("filterInputContainer");
-    inputContainer.style.display = 'block';
-
-    var inputLabel = document.getElementById("filterInputLabel");
-    var input = document.getElementById("filterInput");
-
-    if (option === "date") {
-        inputLabel.innerHTML = "Enter date";
-        input.type = "date";
-        input.dataset.option = option;
+    var selectedInputContainer = document.getElementById(`${option}InputContainer`);
+    if (selectedInputContainer.style.display === 'block') {
+        // If the selected input container is already visible, hide it
+        selectedInputContainer.style.display = 'none';
+        var inputContainer = document.getElementById(`${option}InputContainer`);
+        var inputField = inputContainer.querySelector('input');
+        inputField.value = ''; 
     } else {
-        inputLabel.innerHTML = "Enter minimum " + option + ".";
-        input.dataset.option = option;
-        input.placeholder = "Enter " + option + " (" + getFormat(option) + ")";
-        input.type = "text"; // Ensure input type is text for non-date options
+        selectedInputContainer.style.display = 'block';
     }
-
-    var dropdownOptions = document.querySelectorAll('.filter-dropdown a');
-    dropdownOptions.forEach(function(optionElement) {
-        optionElement.classList.add('hidden'); // Hide all options
-    });
-
-    var clickedOption = document.querySelector('.filter-dropdown a[href="#"][onclick="showInput(\'' + option + '\')"]');
-    clickedOption.classList.remove('hidden'); // Show the selected option
-    document.querySelector('.filter-dropdown').style.borderRadius = '4px 4px 0px 0px';
 }
 
-  
 function applyFilter() {
-    var input = document.getElementById("filterInput");
-    var value = input.value;
-    var option = input.dataset.option;
-    console.log(option);
-    if (option == 'duration') {
-      value = formatDuration(value);
-    }
-    if (value.trim() !== "") {
-        console.log("Filter by " + option + " with value: " + value);
+    var inputs = document.querySelectorAll('.filter-dropdown input');
+    var filters = [];
+    var url = "/runs?";
+
+    inputs.forEach(input => {
+        if (input.value.trim() !== "") {
+            filters.push({
+                option: input.id,
+                value: input.value
+            });
+            if (url == '?') {
+              url += input.id + "=" + input.value;
+            } else {
+              url += "&" + input.id + "=" + input.value;
+            }
+        }
+    });
+
+    console.log(url);
+
+    if (filters.length > 0) {
         fetch('/apply-filter', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                option: option,
-                value: value
-            })
+            body: JSON.stringify({ filters: filters })
         })
         .then(response => {
-          if (response.ok) {
-              // If the response is successful, redirect the user to the filtered runs page
-              window.location.href = `/runs?${option}=${encodeURIComponent(value)}`;
-          } else {
-              console.error('Error applying filter:', response.statusText);
-          }
+            if (response.ok) {
+                // If the response is successful, parse the JSON response
+                window.location.href = url;
+            } else {
+                throw new Error('Error applying filters:', response.statusText);
+            }
         })
         .catch(error => {
             console.error('Error:', error);
@@ -104,6 +106,8 @@ function applyFilter() {
         toggleDropdown();
     }
 }
+
+
 
 
   
@@ -167,6 +171,7 @@ function applyFilter() {
             day: '2-digit'
           })%></p>
           <p class="distance">Distance: <%= run.distance %></p>
+          <p class="pace">Pace: <%= Math.floor(run.pace / 60) %>:<%= run.pace % 60 < 10 ? '0' + Math.round(run.pace % 60) : Math.round(run.pace % 60) %> min/mi</p>
         </a>
       <% }) %>
 

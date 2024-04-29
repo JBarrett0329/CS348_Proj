@@ -152,38 +152,79 @@ app.get('/runs/create', (req, res) => {
 });
 
 
+// app.get('/runs', (req, res) => {
+//   const userId = req.cookies.userId;
+//   const filter = {};
+//   filter.user = userId;
+
+//   console.log(req.query.distance);
+//   if (req.query.distance) {
+//       filter.distance = { $gte: parseFloat(req.query.distance) };
+//   } else if (req.query.date) {
+//     filter.date = req.query.date;
+//   } else if (req.query.duration) {
+//     filter.duration = { $gte: req.query.duration };
+//   } else if (req.query.pace) {
+//     filter.pace = { $gte: parseFloat(req.query.pace)* 60 };
+//     console.log(filter.pace);
+//   }
+
+//   Run.find(filter).sort({ createdAt: -1 })
+//       .then(result => {
+//         if (req.originalUrl.includes('?')) {
+//           console.log(req.query.option, req.query.value);
+//           res.render('index', { runs: result, title: 'Filtered runs'});
+//         } else {
+//           console.log(req.query.option, req.query.value);
+//           res.render('index', { runs: result, title: 'All runs'});
+//         }
+//       })
+//       .catch(err => {
+//           console.log(err);
+//           res.status(500).send('Error fetching runs');
+//       });
+// });
+
 app.get('/runs', (req, res) => {
   const userId = req.cookies.userId;
-  const filter = {};
-  filter.user = userId;
+  const filter = { user: userId }; // Always filter by user ID
 
-  console.log(req.query.distance);
-  if (req.query.distance) {
-      filter.distance = { $gte: parseFloat(req.query.distance) };
-  } else if (req.query.date) {
-    filter.date = req.query.date;
-  } else if (req.query.duration) {
-    filter.duration = { $gte: req.query.duration };
-  } else if (req.query.pace) {
-    filter.pace = { $gte: parseFloat(req.query.pace)* 60 };
-    console.log(filter.pace);
+  // Check if any filter query parameters are provided
+  if (Object.keys(req.query).length > 0) {
+    Object.keys(req.query).forEach(param => {
+      // Apply each filter based on the query parameter
+      switch (param) {
+        case 'distance':
+          filter.distance = { $gte: parseFloat(req.query.distance) };
+          break;
+        case 'date':
+          filter.date = new Date(req.query.date); // Convert date string to Date object
+          break;
+        case 'duration':
+          filter.duration = { $gte: req.query.duration };
+          break;
+        case 'pace':
+          filter.pace = { $lte: parseFloat(req.query.pace) * 60 };
+          break;
+        default:
+          break;
+      }
+    });
   }
-
-  Run.find(filter).sort({ createdAt: -1 })
-      .then(result => {
-        if (req.originalUrl.includes('?')) {
-          console.log(req.query.option, req.query.value);
-          res.render('index', { runs: result, title: 'Filtered runs'});
-        } else {
-          console.log(req.query.option, req.query.value);
-          res.render('index', { runs: result, title: 'All runs'});
-        }
-      })
-      .catch(err => {
-          console.log(err);
-          res.status(500).send('Error fetching runs');
-      });
+  // Fetch runs based on the constructed filter
+  Run.find(filter)
+    .sort({ createdAt: -1 })
+    .then(result => {
+      // Check if any filters were applied
+      const title = Object.keys(req.query).length > 0 ? 'Filtered runs' : 'All runs';
+      res.render('index', { runs: result, title: title });
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).send('Error fetching runs');
+    });
 });
+
 
 function parseDurationToSeconds(duration) {
   const parts = duration.split(':'); // Split the duration string into parts
@@ -250,13 +291,21 @@ app.post('/runs', (req, res) => {
 });
 
 
-
 app.post('/apply-filter', (req, res) => {
-  const { option, value } = req.body;
-  console.log(option, value);
-  // Redirect to /runs with the filter option and value as query parameters
-  res.redirect(`/runs?${option}=${encodeURIComponent(value)}`);
+  const filters = req.body.filters; // Assuming filters are sent as an array of objects [{ option: 'distance', value: '5' }, { option: 'duration', value: '10' }]
+  console.log(filters);
+  const filter = {};
+
+  filters.forEach(filterObj => {
+    filter[filterObj.option] = filterObj.value;
+  });
+  console.log(filter);
+
+  // Redirect to /runs with the filter options and values as query parameters
+  const queryString = new URLSearchParams(filter).toString();
+  res.redirect(`/runs?${queryString}`);
 });
+
 
 
 app.post("/runs/:id", async (req, res) => {

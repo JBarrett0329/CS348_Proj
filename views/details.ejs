@@ -10,8 +10,8 @@
           <p class="date" style="margin-bottom: 20px;">Date: <%= run.date.toLocaleDateString('en-US', {timeZone: 'UTC'}) %></p>
             <p class="time" style="margin-bottom: 20px;">Duration: <%= run.duration %></p>
             <p class="distance" style="margin-bottom: 20px;">Distance: <%= run.distance %> miles</p>
-            <p class="distance" style="margin-bottom: 20px;">Pace: <%= (run.pace / 60).toFixed(2) %> min/mi</p>
-            <p class="distance" style="margin-bottom: 20px;">Notes: <%= run.notes %></p>
+            <p class="pace" style="margin-bottom: 20px;">Pace: <%= Math.floor(run.pace / 60) %>:<%= run.pace % 60 < 10 ? '0' + Math.round(run.pace % 60) : Math.round(run.pace % 60) %> min/mi</p>
+            <p class="notes" style="margin-bottom: 20px;">Notes: <%= run.notes %></p>
       </div>
       <a class="delete" style="position: absolute" data-doc="<%= run._id %>">
         Delete
