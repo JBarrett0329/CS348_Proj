@@ -6,6 +6,7 @@ const Run = require('./models/run');
 const User = require('./models/user');
 const { request } = require('http');
 const { body, validationResult } = require('express-validator');
+const validator = require('validator');
 const bodyParser = require('body-parser');
 
 // express app
@@ -124,7 +125,11 @@ app.post('/new-user', (req, res) => {
 });
 
 app.post('/sign-in', async (req, res) => {
-  const { username_or_email, password } = req.body;
+  let { username_or_email, password } = req.body;
+
+  // Sanitize inputs
+  username_or_email = validator.escape(username_or_email);
+  password = validator.escape(password);
 
   try {
       // Find user by username or email
@@ -141,11 +146,13 @@ app.post('/sign-in', async (req, res) => {
       if (password != user.password) {
           return res.status(401).json({ message: 'Incorrect password' });
       }
+
       res.cookie('userId', user._id);
 
       res.redirect('/runs');
   } catch (err) {
       console.error(err);
+      res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -175,7 +182,8 @@ app.get('/runs', (req, res) => {
           filter.duration = { $gte: req.query.duration };
           break;
         case 'pace':
-          filter.pace = { $lte: parseFloat(req.query.pace) * 60 };
+          console.log(parseDurationToSeconds(req.query.pace));
+          filter.pace = { $lte: parseDurationToSeconds(req.query.pace) };
           break;
         default:
           break;
@@ -237,7 +245,7 @@ function formatDuration(durationInput) {
 
 app.post('/runs', (req, res) => {
   const userId = req.cookies.userId;
-  console.log(userId);
+  //console.log(userId);
 
   const { distance, duration } = req.body;
   const dist = parseFloat(distance);
@@ -269,7 +277,7 @@ app.post('/apply-filter',
     (req, res) => {
         // Extract any validation errors
         const errors = validationResult(req);
-        console.log(body('filters.*.value').trim().escape());
+        //console.log(body('filters.*.value').trim().escape());
         
         // Check if there are validation errors
         if (!errors.isEmpty()) {
