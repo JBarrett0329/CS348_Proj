@@ -12,7 +12,7 @@
         <div class="filter-dropdown" id="myDropdown">
             <a href="#" onclick="showInput('distance')">Distance</a>
             <div class="filter-input-container" id="distanceInputContainer" style="display: none; margin-right: 4px;">
-                <input type="text" id="distance" placeholder="Enter min. distance">
+                <input type="number" id="distance" placeholder="Enter min. distance">
             </div>
 
             <a href="#" onclick="showInput('date')">Date</a>
@@ -70,11 +70,28 @@ function applyFilter() {
 
     inputs.forEach(input => {
         if (input.value.trim() !== "") {
+            // Apply different regex patterns based on the option
+            var regexPattern = '';
+            if (input.id === 'duration' || input.id === 'pace') {
+                regexPattern = '^(?:[0-2]?[0-9]?[0-9]:)?([0-5]?\\d)(?::([0-5]?\\d)(?::([0-5][0-9]))?)?$';
+            } else {
+                regexPattern = '^.*$'; // Default pattern, accept any value
+            }
+
+            // Create a regular expression object
+            var regex = new RegExp(regexPattern);
+
+            // Test if the input value matches the regex pattern
+            if (!regex.test(input.value)) {
+                // Display error message or handle invalid input
+                console.error('Invalid input for ' + input.id);
+                return; // Skip further processing for this input
+            }
             filters.push({
                 option: input.id,
                 value: input.value
             });
-            if (url == '?') {
+            if (url == '/runs?') {
               url += input.id + "=" + input.value;
             } else {
               url += "&" + input.id + "=" + input.value;

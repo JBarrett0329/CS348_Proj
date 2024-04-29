@@ -5,8 +5,9 @@ const cookieParser = require('cookie-parser');
 const Run = require('./models/run');
 const User = require('./models/user');
 const { request } = require('http');
-
-
+const { body, validationResult } = require('express-validator');
+const validator = require('validator');
+const bodyParser = require('body-parser');
 
 // express app
 const app = express();
@@ -28,8 +29,11 @@ app.set('view engine', 'ejs');
 // middleware & static files
 app.use(express.static('public'));
 app.use(express.urlencoded({extended: true}));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.json()); // Parse JSON request body
+
 
 app.use(morgan('dev'));
 app.use((req, res, next) => {
@@ -121,7 +125,11 @@ app.post('/new-user', (req, res) => {
 });
 
 app.post('/sign-in', async (req, res) => {
-  const { username_or_email, password } = req.body;
+  let { username_or_email, password } = req.body;
+
+  // Sanitize inputs
+  username_or_email = validator.escape(username_or_email);
+  password = validator.escape(password);
 
   try {
       // Find user by username or email
@@ -138,11 +146,13 @@ app.post('/sign-in', async (req, res) => {
       if (password != user.password) {
           return res.status(401).json({ message: 'Incorrect password' });
       }
+
       res.cookie('userId', user._id);
 
       res.redirect('/runs');
   } catch (err) {
       console.error(err);
+      res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -152,38 +162,6 @@ app.get('/runs/create', (req, res) => {
 });
 
 
-// app.get('/runs', (req, res) => {
-//   const userId = req.cookies.userId;
-//   const filter = {};
-//   filter.user = userId;
-
-//   console.log(req.query.distance);
-//   if (req.query.distance) {
-//       filter.distance = { $gte: parseFloat(req.query.distance) };
-//   } else if (req.query.date) {
-//     filter.date = req.query.date;
-//   } else if (req.query.duration) {
-//     filter.duration = { $gte: req.query.duration };
-//   } else if (req.query.pace) {
-//     filter.pace = { $gte: parseFloat(req.query.pace)* 60 };
-//     console.log(filter.pace);
-//   }
-
-//   Run.find(filter).sort({ createdAt: -1 })
-//       .then(result => {
-//         if (req.originalUrl.includes('?')) {
-//           console.log(req.query.option, req.query.value);
-//           res.render('index', { runs: result, title: 'Filtered runs'});
-//         } else {
-//           console.log(req.query.option, req.query.value);
-//           res.render('index', { runs: result, title: 'All runs'});
-//         }
-//       })
-//       .catch(err => {
-//           console.log(err);
-//           res.status(500).send('Error fetching runs');
-//       });
-// });
 
 app.get('/runs', (req, res) => {
   const userId = req.cookies.userId;
@@ -204,7 +182,8 @@ app.get('/runs', (req, res) => {
           filter.duration = { $gte: req.query.duration };
           break;
         case 'pace':
-          filter.pace = { $lte: parseFloat(req.query.pace) * 60 };
+          console.log(parseDurationToSeconds(req.query.pace));
+          filter.pace = { $lte: parseDurationToSeconds(req.query.pace) };
           break;
         default:
           break;
@@ -266,7 +245,7 @@ function formatDuration(durationInput) {
 
 app.post('/runs', (req, res) => {
   const userId = req.cookies.userId;
-  console.log(userId);
+  //console.log(userId);
 
   const { distance, duration } = req.body;
   const dist = parseFloat(distance);
@@ -291,19 +270,32 @@ app.post('/runs', (req, res) => {
 });
 
 
-app.post('/apply-filter', (req, res) => {
-  const filters = req.body.filters; // Assuming filters are sent as an array of objects [{ option: 'distance', value: '5' }, { option: 'duration', value: '10' }]
-  console.log(filters);
-  const filter = {};
+app.post('/apply-filter', 
+    // Sanitize the inputs
+    body('filters.*.option').trim().escape(),
+    body('filters.*.value').trim().escape(),
+    (req, res) => {
+        // Extract any validation errors
+        const errors = validationResult(req);
+        //console.log(body('filters.*.value').trim().escape());
+        
+        // Check if there are validation errors
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+        
+        // If there are no errors, proceed with filtering
+        
+        const filters = req.body.filters;
+        const filter = {};
 
-  filters.forEach(filterObj => {
-    filter[filterObj.option] = filterObj.value;
-  });
-  console.log(filter);
+        filters.forEach(filterObj => {
+            filter[filterObj.option] = filterObj.value;
+        });
 
-  // Redirect to /runs with the filter options and values as query parameters
-  const queryString = new URLSearchParams(filter).toString();
-  res.redirect(`/runs?${queryString}`);
+        // Redirect to /runs with the sanitized filter options and values as query parameters
+        const queryString = new URLSearchParams(filter).toString();
+        res.redirect(`/runs?${queryString}`);
 });
 
 
@@ -311,23 +303,28 @@ app.post('/apply-filter', (req, res) => {
 app.post("/runs/:id", async (req, res) => {
   const { id } = req.params;
   const { name, date, duration, distance, notes } = req.body;
-  console.log(id);
+
   try {
-    // Find the document by ID and update it
-    const updatedDoc = await Run.findByIdAndUpdate(id, { name, date, duration, distance, notes } , { new: true });
+    // Calculate the new pace
+    const durationInSeconds = parseDurationToSeconds(duration);
+    const dist = parseFloat(distance);
+    const pace = durationInSeconds / dist;
+
+    // Find the document by ID and update it with the new pace
+    const updatedDoc = await Run.findByIdAndUpdate(id, { name, date, duration, distance, notes, pace }, { new: true });
 
     if (!updatedDoc) {
       return res.status(404).json({ message: 'Document not found' });
     }
 
-    Run.findById(id)
-    .then(result => {
-      res.render('details', { run: result, title: 'Run Details' })
-    })
+    // Return the updated document to the client
+    res.render('details', { run: updatedDoc, title: 'Run Details' });
   } catch (err) {
     console.log(err);
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
+
 
 app.get('/runs/:id', (req, res) => {
   const id = req.params.id;
