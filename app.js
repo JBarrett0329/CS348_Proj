@@ -251,11 +251,11 @@ app.post('/runs', (req, res) => {
   const dist = parseFloat(distance);
   const durationInSeconds = parseDurationToSeconds(duration);
   const pace = durationInSeconds / dist;
-  const newDuration = formatDuration(duration)
+  //const newDuration = formatDuration(duration)
 
   const run = new Run({
       ...req.body,
-      duration: newDuration,
+      // duration: newDuration,
       pace: pace,
       user: userId
   });

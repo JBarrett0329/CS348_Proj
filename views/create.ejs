@@ -14,8 +14,8 @@
       <input type="number" id="distance" name="distance" step=".01" required>
 
       <label for="duration">Duration (HH:MM:SS):</label>
-      <input type="text" id="duration" name="duration" pattern="(^([0-1]?\d|2[0-3]):([0-5]?\d):([0-5]?\d)$)|(^([0-5]?\d):([0-5]?\d)$)
-      " title="Please enter duration in HH:MM:SS format" required>
+      <input type="text" id="duration" name="duration" pattern="(^([0-1]?\d|2[0-3]):([0-5]?\d):([0-5]?\d)$)|(^([0-5]?\d):([0-5]?\d)$)"
+      title="Please enter duration in HH:MM:SS format" required>
 
       <label for="date">Date:</label>
       <input type="date" id="date" name="date" required>
@@ -24,7 +24,7 @@
       <textarea type="text" id="notes" name="notes"></textarea>
 
       <div style="text-align: center; margin-top: 20px;">
-        <button onclick="formatDuration()">Submit</button>
+        <button>Submit</button>
       </div>
     </form>
   </div>
@@ -32,7 +32,7 @@
 </body>
 </html>
 
-<script>
+<!-- <script>
 function formatDuration() {
     const durationInput = document.getElementById('durationInput');
     const durationValue = durationInput.value.trim();
@@ -51,5 +51,5 @@ function formatDuration() {
         console.error('Invalid duration format');
     }
 }
-</script>
+</script> -->
 
