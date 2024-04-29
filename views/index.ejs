@@ -5,20 +5,171 @@
   <%- include("./partials/nav.ejs") %>
 
   <div class="runs content">
-    <h2>All Runs</h2>
+    <div style="display: flex; justify-content: space-between;">
+      <h2> Runs </h2>
+      <div class="filter-container">
+        <button class="filter-button" onclick="toggleDropdown()">Filter</button>
+        <div class="filter-dropdown" id="myDropdown">
+            <a href="#" onclick="showInput('distance')">Distance</a>
+            <a href="#" onclick="showInput('date')">Date</a>
+            <a href="#" onclick="showInput('duration')">Duration</a>
+            <a href="#" onclick="showInput('pace')">Pace</a>
+            <div class= "filter-input-container" id="filterInputContainer" style="display: none;">
+              <div style="margin: 0 4px 4px 4px; border-right: 6px solid crimson; border-radius: 2px;">
+                <div style="margin: 8px;">
+                  <label for="filterInput" id ="filterInputLabel"></label>
+                  <input type="text" id="filterInput" placeholder="Enter filter value">
+                  <button onclick="applyFilter()">Apply</button>
+                </div>
+              </div>
+            </div>
+        </div>
+    </div>
+  </div>
+  
+  <script>
+  function toggleDropdown() {
+      var dropdown = document.getElementById("myDropdown");
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+      dropdown.style.borderRadius = '4px';
+      var dropdownOptions = document.querySelectorAll('.filter-dropdown a');
+      dropdownOptions.forEach(function(optionElement) {
+          optionElement.classList.remove('hidden'); 
+      });
+      var inputContainer = document.getElementById("filterInputContainer");
+      inputContainer.style.display = 'none';
+
+  }
+  
+  function showInput(option) {
+    var inputContainer = document.getElementById("filterInputContainer");
+    inputContainer.style.display = 'block';
+
+    var inputLabel = document.getElementById("filterInputLabel");
+    var input = document.getElementById("filterInput");
+
+    if (option === "date") {
+        inputLabel.innerHTML = "Enter date";
+        input.type = "date";
+        input.dataset.option = option;
+    } else {
+        inputLabel.innerHTML = "Enter minimum " + option + ".";
+        input.dataset.option = option;
+        input.placeholder = "Enter " + option + " (" + getFormat(option) + ")";
+        input.type = "text"; // Ensure input type is text for non-date options
+    }
+
+    var dropdownOptions = document.querySelectorAll('.filter-dropdown a');
+    dropdownOptions.forEach(function(optionElement) {
+        optionElement.classList.add('hidden'); // Hide all options
+    });
+
+    var clickedOption = document.querySelector('.filter-dropdown a[href="#"][onclick="showInput(\'' + option + '\')"]');
+    clickedOption.classList.remove('hidden'); // Show the selected option
+    document.querySelector('.filter-dropdown').style.borderRadius = '4px 4px 0px 0px';
+}
+
+  
+function applyFilter() {
+    var input = document.getElementById("filterInput");
+    var value = input.value;
+    var option = input.dataset.option;
+    console.log(option);
+    if (option == 'duration') {
+      value = formatDuration(value);
+    }
+    if (value.trim() !== "") {
+        console.log("Filter by " + option + " with value: " + value);
+        fetch('/apply-filter', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                option: option,
+                value: value
+            })
+        })
+        .then(response => {
+          if (response.ok) {
+              // If the response is successful, redirect the user to the filtered runs page
+              window.location.href = `/runs?${option}=${encodeURIComponent(value)}`;
+          } else {
+              console.error('Error applying filter:', response.statusText);
+          }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+        toggleDropdown();
+    }
+}
+
+
+  
+  function getFormat(option) {
+      switch(option) {
+          case 'distance':
+              return "ex. 5 miles";
+          case 'date':
+              return "ex. YYYY-MM-DD";
+          case 'duration':
+              return "ex., HH:MM:SS";
+          case 'pace':
+              return "ex., mm:ss per mile";
+          default:
+              return "";
+      }
+  }
+
+  function formatDuration(durationInput) {
+      const durationValue = durationInput;
+
+      // Split the duration string by ':'
+      const parts = durationValue.split(':');
+
+      if (parts.length === 2) {
+          // Duration does not include hours, add '0:' to the beginning
+          return `0:${durationValue}`;
+      } else if (parts.length === 3) {
+          // Duration already includes hours
+          return durationValue;
+      } else {
+          // Invalid duration format
+          console.error('Invalid duration format');
+      }
+  }
+  
+  // Close the dropdown menu if the user clicks outside of it
+  document.body.addEventListener('click', function(event) {
+      var dropdown = document.getElementById("myDropdown");
+      var inputContainer = document.getElementById("filterInputContainer");
+      if (!dropdown.contains(event.target) && event.target !== document.querySelector('.filter-button')) {
+          var dropdownOptions = document.querySelectorAll('.filter-dropdown a');
+          dropdownOptions.forEach(function(optionElement) {
+              optionElement.classList.remove('hidden'); // Unhide all options
+          });
+          dropdown.style.display = 'none';
+          inputContainer.style.display = 'none';
+      }
+      
+  });
+
+  </script>
 
     <% if (runs.length > 0) { %>
       <% runs.forEach(run => { %>
         <a class="single" href="/runs/<%= run._id %>" style="margin-bottom: 20px;">
           <h3 class="name"><%= run.name %></h3>
-          <p class="date">Date: <%= run.date.toLocaleDateString('en-US', {
+          <p class="date">Date: <%= run.date.toLocaleDateString('en-US', {timeZone: 'UTC'}, {
             year: 'numeric',
             month: 'short',
-            day: '2-digit'  
-          }) %></p>
+            day: '2-digit'
+          })%></p>
           <p class="distance">Distance: <%= run.distance %></p>
         </a>
       <% }) %>
+
     <% } else { %>
       <p>There are no runs to display...</p>
     <% } %>

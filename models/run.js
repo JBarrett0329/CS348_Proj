@@ -23,15 +23,28 @@ const runSchema = new Schema({
     //   },
     required: true
   },
+  pace: {
+    type: Number,
+    required: true
+  },
   date: {
     type: Date,
     required: true
   },
   notes: {
     type: String
+  }, 
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
   }
 
 });
+
+runSchema.index({ distance: 1 });
+runSchema.index({ pace: 1 });
+runSchema.index({ date: 1 });
 
 const Run = mongoose.model('Run', runSchema);
 module.exports = Run;
